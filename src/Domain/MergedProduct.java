@@ -1,6 +1,7 @@
 package Domain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -9,8 +10,7 @@ public class MergedProduct
 	private final String id;
 	private String description;
 	private String type;
-	private String additionalData1;
-	private String additionalData2;
+	private List<String> additionalData;
 	private List<Float> prices;
 	private int cheapestIndex;
 	
@@ -21,8 +21,7 @@ public class MergedProduct
 		cheapestIndex = 0;
 		prices = new ArrayList<>();
 		type = "";
-		additionalData1 = "";
-		additionalData2 = "";
+		additionalData = Collections.emptyList();
 	}
 
 	public String getType() 
@@ -66,25 +65,16 @@ public class MergedProduct
 		this.cheapestIndex = cheapestIndex;
 	}
 	
-	public String getAdditionalData1() 
+	public List<String> getAdditionalData() 
 	{
-		return additionalData1;
+		return additionalData;
 	}
 
-	public void setAdditionalData1(String additionalData1) 
+	public void setAdditionalData(List<String> additionalData) 
 	{
-		this.additionalData1 = additionalData1;
+		this.additionalData = additionalData;
 	}
 
-	public String getAdditionalData2() 
-	{
-		return additionalData2;
-	}
-
-	public void setAdditionalData2(String additionalData2) 
-	{
-		this.additionalData2 = additionalData2;
-	}
 
 	@Override
 	public boolean equals(Object obj) 

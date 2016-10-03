@@ -133,8 +133,7 @@ public class ExcelMerger {
 			if (reference != Reference.EMPTY_REFERENCE)
 			{
 				mergedProduct.setType(reference.getType());
-				mergedProduct.setAdditionalData1(reference.getAdditionalData1());
-				mergedProduct.setAdditionalData2(reference.getAdditionalData2());
+				mergedProduct.setAdditionalData(reference.getAdditionalData());
 				if (reference.getDescription().length() > 0)
 				{
 					mergedProduct.setDescription(reference.getDescription());

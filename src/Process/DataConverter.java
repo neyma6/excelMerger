@@ -26,16 +26,14 @@ import Domain.SimilarIdContainer;
 public class DataConverter
 {
 	private static int TYPE_COLUMN_NUMBER = 0;
-	private static int ADDITIONAL1_COLUMN_NUMBER = 1;
-	private static int ADDITIONAL2_COLUMN_NUMBER = 2;
-	private static int ID_COLUMN_NUMBER = 3;
-	private static int DESCRIPTION_COLUMN_NUMBER = 4;
-	private static int CHEAPEST_COLUMN_NUMBER = 5;
-	private static int PRICE_COLUMN_NUMBER = 7;
+	private static int ADDITIONAL_COLUMN_NUMBER = 1;
+	private static int ID_COLUMN_NUMBER = 6;
+	private static int DESCRIPTION_COLUMN_NUMBER = 7;
+	private static int CHEAPEST_COLUMN_NUMBER = 8;
+	private static int PRICE_COLUMN_NUMBER = 9;
 	
 	private static String TYPE_COLUMN_NAME = "Típus";
-	private static String ADDITIONAL1_COLUMN_NAME = "Plusz infó";
-	private static String ADDITIONAL2_COLUMN_NAME = "Plusz infó";
+	private static String ADDITIONAL_COLUMN_NAME = "Plusz infó";
 	private static String ID_COLUMN_NAME = "Gyári kód";
 	private static String DESCRIPTION_COLUMN_NAME = "Termék";
 	private static String CHEAPEST_COLUMN_NAME = "Legolcsóbb";
@@ -79,8 +77,7 @@ public class DataConverter
 		}
 		
 		sheet.autoSizeColumn(TYPE_COLUMN_NUMBER);
-		sheet.autoSizeColumn(ADDITIONAL1_COLUMN_NUMBER);
-		sheet.autoSizeColumn(ADDITIONAL2_COLUMN_NUMBER);
+		autosizeAdditionalCells(sheet);
 		sheet.autoSizeColumn(ID_COLUMN_NUMBER);
 		sheet.autoSizeColumn(DESCRIPTION_COLUMN_NUMBER);
 		sheet.autoSizeColumn(CHEAPEST_COLUMN_NUMBER);
@@ -160,8 +157,7 @@ public class DataConverter
 	private void fillMainRow(Row row, List<String> cellValues)
 	{
 		row.createCell(TYPE_COLUMN_NUMBER).setCellValue(TYPE_COLUMN_NAME);
-		row.createCell(ADDITIONAL1_COLUMN_NUMBER).setCellValue(ADDITIONAL1_COLUMN_NAME);
-		row.createCell(ADDITIONAL2_COLUMN_NUMBER).setCellValue(ADDITIONAL2_COLUMN_NAME);
+		createAdditionalCells(row);
 		row.createCell(ID_COLUMN_NUMBER).setCellValue(ID_COLUMN_NAME);
 		row.createCell(DESCRIPTION_COLUMN_NUMBER).setCellValue(DESCRIPTION_COLUMN_NAME);
 		row.createCell(CHEAPEST_COLUMN_NUMBER).setCellValue(CHEAPEST_COLUMN_NAME);
@@ -171,11 +167,22 @@ public class DataConverter
 		}
 	}
 	
+	private void createAdditionalCells(Row row) {
+		for (int i = ADDITIONAL_COLUMN_NUMBER; i < ID_COLUMN_NUMBER; i++) {
+			row.createCell(i).setCellValue(ADDITIONAL_COLUMN_NAME + " " + i);
+		}
+	}
+	
+	private void autosizeAdditionalCells(Sheet sheet) {
+		for (int i = ADDITIONAL_COLUMN_NUMBER; i < ID_COLUMN_NUMBER; i++) {
+			sheet.autoSizeColumn(i);
+		}
+	}
+	
 	private void fillRow(Row row, MergedProduct mergedProduct, Workbook workbook)
 	{
 		row.createCell(TYPE_COLUMN_NUMBER).setCellValue(mergedProduct.getType());
-		row.createCell(ADDITIONAL1_COLUMN_NUMBER).setCellValue(mergedProduct.getAdditionalData1());
-		row.createCell(ADDITIONAL2_COLUMN_NUMBER).setCellValue(mergedProduct.getAdditionalData2());
+		fillAdditionalData(row, mergedProduct);
 		row.createCell(ID_COLUMN_NUMBER).setCellValue(mergedProduct.getId());
 		row.createCell(DESCRIPTION_COLUMN_NUMBER).setCellValue(mergedProduct.getDescription());
 		List<String> prices = convertFloatToString(mergedProduct.getPrices());
@@ -203,6 +210,14 @@ public class DataConverter
 		}
 	}
 	
+	private void fillAdditionalData(Row row, MergedProduct mergedProduct) {
+		int sizeOfAdditionalCells = mergedProduct.getAdditionalData().size() < 5 
+				? mergedProduct.getAdditionalData().size() : ID_COLUMN_NUMBER;
+		for (int i = 0; i < sizeOfAdditionalCells ; i++) {
+			row.createCell(ADDITIONAL_COLUMN_NUMBER + i).setCellValue(mergedProduct.getAdditionalData().get(i));
+		}
+	}
+	
 	private void addDataToReferences(Row row, Set<Reference> references)
 	{
 		Cell id = row.getCell(0);
@@ -210,11 +225,20 @@ public class DataConverter
 		if (isValidReferenceData(id, type))
 		{	
 			String description = getData(row.getCell(2));
-			String additional1 = getData(row.getCell(3));
-			String additional2 = getData(row.getCell(4));
+			List<String> additional = extractAdditionalData(row, 3);
 			String idS = removeSpaceFromTheBegining(removeSpacesFromTheEnd(getIdCellValue(id).toUpperCase()));
-			references.add(new Reference(idS, type.toString(), description, additional1, additional2));
+			references.add(new Reference(idS, type.toString(), description, additional));
 		}
+	}
+	
+	//6. goal
+	private List<String> extractAdditionalData(Row row, int startIndex) {
+		List<String> additionalData = new ArrayList<>();
+		int lastCellNumber = row.getLastCellNum();
+		for (int i = startIndex; i < lastCellNumber; i++) {
+			additionalData.add(getData(row.getCell(i)));
+		}
+		return additionalData;
 	}
 	
 	private void addDataToProductList(Row row, List<Product> products, int idColumn, int descColumn,
@@ -228,6 +252,11 @@ public class DataConverter
 			try
 			{
 				float priceInFloat = Float.parseFloat(price.toString());
+				//1. goal from specification.txt
+				if (priceInFloat == 0.0) {
+					return;
+				}
+				
 				String idS = getIdCellValue(id).toUpperCase();
 				idS = removeSpaceFromTheBegining(removeSpacesFromTheEnd(idS));
 				String similarId = similarIdContainer.getSimilarId().get(idS);
