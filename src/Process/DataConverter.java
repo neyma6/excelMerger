@@ -23,6 +23,7 @@ import Domain.Reference;
 import Domain.ReferenceContainer;
 import Domain.SimilarIdContainer;
 
+//need to refactor this shit
 public class DataConverter
 {
 	private static int TYPE_COLUMN_NUMBER = 0;
@@ -220,14 +221,15 @@ public class DataConverter
 	
 	private void addDataToReferences(Row row, Set<Reference> references)
 	{
-		Cell id = row.getCell(0);
-		Cell type = row.getCell(1);
+		Cell id = row.getCell(1);
+		Cell type = row.getCell(2);
 		if (isValidReferenceData(id, type))
 		{	
-			String description = getData(row.getCell(2));
-			List<String> additional = extractAdditionalData(row, 3);
+			String description = getData(row.getCell(3));
+			List<String> additional = extractAdditionalData(row, 4);
 			String idS = removeSpaceFromTheBegining(removeSpacesFromTheEnd(getIdCellValue(id).toUpperCase()));
-			references.add(new Reference(idS, type.toString(), description, additional));
+			String webId = getData(row.getCell(0));
+			references.add(new Reference(webId, idS, type.toString(), description, additional));
 		}
 	}
 	

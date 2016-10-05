@@ -4,7 +4,7 @@
 4. Ha a limitet elértük, töröljük a referencia file-ból a terméket. - 5h
 5. (?) Ha lehet, akkor a similarból is takarítani a termékeket.
 6. Referencia file bõvíthetõ lehessen plusz adatokkal, viszont az eredmény file-ba max az elsõ 5 jelenlen meg. - 10h OK
-7. Referencia fileba plusz oszlop (elsõ helyre) - webáruház cikkszám (FREESECTOR-1000+) - 2h
+7. Referencia fileba plusz oszlop (elsõ helyre) - webáruház cikkszám (FREESECTOR-1000+) - 2h OK
 8. CSV mapping - 10h
 
 31h

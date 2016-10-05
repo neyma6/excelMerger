@@ -5,14 +5,16 @@ import java.util.List;
 
 public class Reference 
 {
-	public static final Reference EMPTY_REFERENCE = new Reference("", "", "", Collections.emptyList());
+	public static final Reference EMPTY_REFERENCE = new Reference("", "", "", "", Collections.emptyList());
+	private final String webId;
 	private final String id;
 	private final String type;
 	private final String description;
 	private final List<String> additionalData;
 		
-	public Reference(String id, String type, String description, List<String> additionalData) 
+	public Reference(String webId, String id, String type, String description, List<String> additionalData) 
 	{
+		this.webId = webId;
 		this.id = id;
 		this.type = type;
 		this.description = description;
@@ -37,6 +39,11 @@ public class Reference
 	public String getDescription() 
 	{
 		return description;
+	}
+	
+
+	public String getWebId() {
+		return webId;
 	}
 
 	@Override
