@@ -1,9 +1,13 @@
 package Excel;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import Domain.FileConfiguration;
@@ -17,6 +21,7 @@ import Domain.SimilarIdContainer;
 import Exception.FileReadException;
 import Process.DataConverter;
 import Process.MergingPool;
+import Process.ReferenceModifier;
 import View.Labels;
 
 
@@ -47,14 +52,15 @@ public class ExcelMerger {
 		workbook = null;
 	}
 	
-	public void process() throws InvalidFormatException, FileReadException
+	public void process() throws Exception
 	{
 		log.clear();
 		productContainers.clear();
 		
 		ExcelReader refReader = new ExcelReader(referenceFilePath);
 		refReader.readExcelFile();
-		ReferenceContainer referenceContainer = dataConverter.convertSheetToReferences(refReader.getSheet(0));
+		Sheet referenceSheet = refReader.getSheet(0);
+		ReferenceContainer referenceContainer = dataConverter.convertSheetToReferences(referenceSheet);
 		
 		log.add(String.format(Labels.LOG_REFERENCE_SIZE, referenceContainer.getReferences().size()));
 		
@@ -90,6 +96,8 @@ public class ExcelMerger {
 			
 		setTypeToProducts(mergedContainer, referenceContainer);
 		sortList(mergedContainer.getMergedProducts());
+		new ReferenceModifier().setTimeStampAndRemoveOldReferences(refReader.getWorkbook(), 
+				getUnusedReferenceIds(mergedContainer, referenceContainer), referenceFilePath);
 		workbook = dataConverter.convertListToWorkBook(mergedContainer);
 	}
 
@@ -140,5 +148,21 @@ public class ExcelMerger {
 				}
 			}
 		});
+	}
+	
+	private Set<String> getUnusedReferenceIds(MergedContainer mergedContainer, ReferenceContainer referenceContainer) {		
+		Set<String> productIds = new HashSet<>();
+		mergedContainer.getMergedProducts().forEach((product)-> {
+			productIds.add(product.getId());
+		});
+		
+		Set<String> referenceIds = new HashSet<>();
+		referenceContainer.getReferences().forEach((reference)-> {
+			referenceIds.add(reference.getId());
+		});
+		
+		referenceIds.removeAll(productIds);
+		
+		return referenceIds;
 	}
 }

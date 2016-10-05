@@ -226,10 +226,11 @@ public class DataConverter
 		if (isValidReferenceData(id, type))
 		{	
 			String description = getData(row.getCell(3));
-			List<String> additional = extractAdditionalData(row, 4);
+			String timestamp = getData(row.getCell(4));
+			List<String> additional = extractAdditionalData(row, 5);
 			String idS = removeSpaceFromTheBegining(removeSpacesFromTheEnd(getIdCellValue(id).toUpperCase()));
 			String webId = getData(row.getCell(0));
-			references.add(new Reference(webId, idS, type.toString(), description, additional));
+			references.add(new Reference(webId, idS, type.toString(), description, timestamp, additional));
 		}
 	}
 	

@@ -56,4 +56,10 @@ public class ExcelReader {
 	{
 		return path;
 	}
+
+	public Workbook getWorkbook() {
+		return workbook;
+	}
+	
+	
 }
